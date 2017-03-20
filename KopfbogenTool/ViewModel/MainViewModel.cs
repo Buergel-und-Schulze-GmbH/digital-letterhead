@@ -2,6 +2,9 @@ using System;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using KopfbogenTool.Basics;
+using System.Diagnostics;
+using System.IO;
+using KopfbogenTool.Service;
 
 namespace KopfbogenTool.ViewModel
 {
@@ -13,58 +16,45 @@ namespace KopfbogenTool.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(IDialogService aDialogs)
+        public MainViewModel( IDialogService aDialogs, IPdfService aPdf )
         {
             mDialogs = aDialogs;
+            mPdf = aPdf;
 
-            if (IsInDesignMode)
-            {
-                // Code runs in Blend / VS Designer --> create design time data.
-                WelcomeText = "Hello Designer!";
-            }
-            else
-            {
-                // Code runs "for real"
-                WelcomeText = "Hello World!";
-            }
-
-            ShowMessageCommand = new RelayCommand(ShowMessage);
+            OpenFileCommand = new RelayCommand( OpenFile );
         }
 
-        private async void ShowMessage()
+        private void OpenFile()
         {
-            await mDialogs.ShowMessageDialog("A simple dialog", "This is a profound message.");
+            string theFileName = mDialogs.ShowFileOpenDialog( "PDF-Datei aussuchen, auf die der Kopfbogen angewendet werden soll", "*.pdf" );
+
+            if( !String.IsNullOrWhiteSpace( theFileName ) )
+            {
+                ProcessPdf( theFileName );
+            }            
         }
 
-        public string WelcomeText
+        public void ProcessPdf( string aFileName )
         {
-            get
+            var theResult = mPdf.SetBackgroundFirstPage( aFileName );
+            if( theResult != null )
             {
-                return mWelcomeText;
+                ShowErrorMessage( theResult );
+                return;
             }
-            set
-            {
-                Set(nameof(WelcomeText), ref mWelcomeText, value);
-            }
+
+            Process.Start( aFileName );
+            App.Current.Shutdown();
         }
-        private string mWelcomeText;
 
-
-        public bool WelcomeTextVisible
+        public void ShowErrorMessage( string aMessage )
         {
-            get
-            {
-                return mWelcomeTextVisible;
-            }
-            set
-            {
-                Set(nameof(WelcomeTextVisible), ref mWelcomeTextVisible, value);
-            }
+            mDialogs.ShowMessageDialog( "Fehler", aMessage );
         }
-        private bool mWelcomeTextVisible = true;
 
-        public RelayCommand ShowMessageCommand { get; private set; }
+        public RelayCommand OpenFileCommand { get; private set; }
 
         private readonly IDialogService mDialogs;
+        private readonly IPdfService mPdf;
     }
 }

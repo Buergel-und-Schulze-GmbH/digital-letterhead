@@ -11,6 +11,7 @@
 
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
+using KopfbogenTool.Service;
 using Microsoft.Practices.ServiceLocation;
 
 namespace KopfbogenTool.ViewModel
@@ -40,6 +41,7 @@ namespace KopfbogenTool.ViewModel
             }
 
             SimpleIoc.Default.Register<MainViewModel>();
+            SimpleIoc.Default.Register<IPdfService, PdfService>();
         }
 
         public MainViewModel Main
