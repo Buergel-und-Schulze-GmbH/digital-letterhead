@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using KopfbogenTool.Basics;
@@ -34,9 +35,9 @@ namespace KopfbogenTool.ViewModel
             }            
         }
 
-        public void ProcessPdf( string aFileName )
+        public async void ProcessPdf( string aFileName )
         {
-            var theResult = mPdf.SetBackgroundFirstPage( aFileName );
+            var theResult = await Task.Run( () => mPdf.SetBackgroundFirstPage( aFileName ) );
             if( theResult != null )
             {
                 ShowErrorMessage( theResult );

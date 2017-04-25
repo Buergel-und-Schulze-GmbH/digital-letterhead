@@ -14,7 +14,7 @@ namespace KopfbogenTool.Service
         public bool SetBackground( string aInputFile, string aBackgroundFile, string aOutputFile )
         {
             var theStartInfo = new ProcessStartInfo();
-            theStartInfo.CreateNoWindow = false;
+            theStartInfo.CreateNoWindow = true;
             theStartInfo.UseShellExecute = false;
             theStartInfo.FileName = @"Resources\pdftk.exe";
             theStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -45,7 +45,7 @@ namespace KopfbogenTool.Service
         public bool Splice( IEnumerable<string> aFiles, string aOutputFile )
         {
             var theStartInfo = new ProcessStartInfo();
-            theStartInfo.CreateNoWindow = false;
+            theStartInfo.CreateNoWindow = true;
             theStartInfo.UseShellExecute = false;
             theStartInfo.FileName = @"Resources\pdftk.exe";
             theStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -84,7 +84,7 @@ namespace KopfbogenTool.Service
         public IEnumerable<string> Split( string aFilename, string aDestinationFolder )
         {
             var theStartInfo = new ProcessStartInfo();
-            theStartInfo.CreateNoWindow = false;
+            theStartInfo.CreateNoWindow = true;
             theStartInfo.UseShellExecute = false;
             theStartInfo.FileName = @"Resources\pdftk.exe";
             theStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -191,6 +191,15 @@ namespace KopfbogenTool.Service
                 {
                     return "Konnte Seiten nicht wieder zu einem Dokument zusammenfügen.";
                 }
+            }
+
+            // Remove temp file
+            try
+            {
+                File.Delete( theBackupFile );
+            }
+            catch
+            {
             }
 
             return null;
