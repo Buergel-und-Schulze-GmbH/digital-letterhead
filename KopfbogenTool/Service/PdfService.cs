@@ -162,7 +162,7 @@ namespace KopfbogenTool.Service
             }
             catch
             {
-                return "Konnte Datei nicht löschen.";
+                return String.Format( "Bitte sicherstellen, dass {0} nicht mehr geöffnet ist.", Path.GetFileName( aFilename ) );
             }
 
             // Set background for first file, store of a temporary

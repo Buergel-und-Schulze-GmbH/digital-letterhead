@@ -22,7 +22,7 @@ namespace KopfbogenTool.ViewModel
             mDialogs = aDialogs;
             mPdf = aPdf;
 
-            OpenFileCommand = new RelayCommand( OpenFile );
+            OpenFileCommand = new RelayCommand( OpenFile, () => !IsBusy );
         }
 
         private void OpenFile()
@@ -37,10 +37,22 @@ namespace KopfbogenTool.ViewModel
 
         public async void ProcessPdf( string aFileName )
         {
+            if( IsBusy )
+            {
+                return;
+            }
+
+            IsBusy = true;
+
+            ProgressStatus = String.Format( @"Füge Kopfbogen hinzu für die Datei '{0}'...", Path.GetFileName( aFileName ) );
+
+            await Task.Delay( 250 ); // Just to allow user to see progress
+
             var theResult = await Task.Run( () => mPdf.SetBackgroundFirstPage( aFileName ) );
             if( theResult != null )
             {
                 ShowErrorMessage( theResult );
+                IsBusy = false;
                 return;
             }
 
@@ -52,6 +64,35 @@ namespace KopfbogenTool.ViewModel
         {
             mDialogs.ShowMessageDialog( "Fehler", aMessage );
         }
+
+        public bool IsBusy
+        {
+            get
+            {
+                return mIsBusy;
+            }
+            set
+            {
+                if( Set( nameof( IsBusy ), ref mIsBusy, value ) )
+                {
+                    OpenFileCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
+        private bool mIsBusy = false;
+
+        public string ProgressStatus
+        {
+            get
+            {
+                return mProgressStatus;
+            }
+            set
+            {
+                Set( nameof( ProgressStatus ), ref mProgressStatus, value );
+            }
+        }
+        private string mProgressStatus = null;
 
         public RelayCommand OpenFileCommand { get; private set; }
 

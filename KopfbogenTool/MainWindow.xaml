@@ -32,7 +32,27 @@
                 Grid.ColumnSpan="2"
                 Margin="15"
                 BorderThickness="4"
+                BorderBrush="LightBlue"
+                Background="AliceBlue"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
+
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock HorizontalAlignment="Center"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap"
+                           Text="{Binding ProgressStatus, FallbackValue=In Arbeit...}"  />
+
+                <Controls:MetroProgressBar Margin="5" IsIndeterminate="True" />
+            </StackPanel>
+        </Border>
+        
+        <Border Grid.Column="0" Grid.Row="1"
+                Grid.ColumnSpan="2"
+                Margin="15"
+                BorderThickness="4"
                 AllowDrop="True"
+                Visibility="{Binding IsBusy, Converter={StaticResource InverseBoolToVisibility}}"
                 Drop="Border_Drop">
             <Border.BorderBrush>
                 <DrawingBrush Viewport="0,0,20,16" ViewportUnits="Absolute" TileMode="Tile">
