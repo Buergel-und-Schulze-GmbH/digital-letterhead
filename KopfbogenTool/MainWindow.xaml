@@ -13,6 +13,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -20,15 +21,28 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Image Source="Resources\logo.gif"
-               HorizontalAlignment="Left"
+        <Image Source="{Binding CurrentLogoPath}"
+               HorizontalAlignment="Center"
                VerticalAlignment="Top"
                Margin="5,5,5,5"
                Width="480"
+               Height="100"
                Grid.Row="0" Grid.Column="0"
                Grid.ColumnSpan="2" />
 
-        <Border Grid.Column="0" Grid.Row="1"
+        <Controls:DropDownButton Grid.Row="1" Grid.ColumnSpan="2"
+                                   Content="{Binding SelectedCompany.Name, FallbackValue='Firma auswählen'}">
+            <Controls:DropDownButton.Items>
+                <MenuItem Header="Bürgel &amp; Schulze" 
+                          Command="{Binding SelectCompanyCommand}" 
+                          CommandParameter="{Binding CompanyOptions[0]}" />
+                <MenuItem Header="RN Nitsche GmbH" 
+                          Command="{Binding SelectCompanyCommand}" 
+                          CommandParameter="{Binding CompanyOptions[1]}" />
+            </Controls:DropDownButton.Items>
+        </Controls:DropDownButton>
+        
+        <Border Grid.Column="0" Grid.Row="2"
                 Grid.ColumnSpan="2"
                 Margin="15"
                 BorderThickness="4"
@@ -47,7 +61,7 @@
             </StackPanel>
         </Border>
         
-        <Border Grid.Column="0" Grid.Row="1"
+        <Border Grid.Column="0" Grid.Row="2"
                 Grid.ColumnSpan="2"
                 Margin="15"
                 BorderThickness="4"

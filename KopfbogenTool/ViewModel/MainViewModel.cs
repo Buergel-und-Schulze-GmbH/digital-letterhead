@@ -1,11 +1,12 @@
-using System;
-using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using KopfbogenTool.Basics;
+using KopfbogenTool.Service;
+using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using KopfbogenTool.Service;
+using System.Threading.Tasks;
 
 namespace KopfbogenTool.ViewModel
 {
@@ -17,52 +18,61 @@ namespace KopfbogenTool.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel( IDialogService aDialogs, IPdfService aPdf )
+        public MainViewModel(IDialogService aDialogs, IPdfService aPdf)
         {
             mDialogs = aDialogs;
             mPdf = aPdf;
 
-            OpenFileCommand = new RelayCommand( OpenFile, () => !IsBusy );
+            OpenFileCommand = new RelayCommand(OpenFile, () => !IsBusy);
+
+            CompanyOptions = new ObservableCollection<CompanyOption>
+            {
+                new CompanyOption { Name = "Bürgel & Schulze", LogoPath = "Resources/logo.gif", BackgroundFilePath = @"Resources\letterhead.pdf" },
+                new CompanyOption { Name = "RN Nitsche GmbH", LogoPath = "Resources/logo-nitsche.png", BackgroundFilePath = @"Resources\letterhead-nitsche.pdf" }
+            };
+
+            SelectCompanyCommand = new RelayCommand<CompanyOption>(SelectCompany);
+            SelectedCompany = CompanyOptions[0];
         }
 
         private void OpenFile()
         {
-            string theFileName = mDialogs.ShowFileOpenDialog( "PDF-Datei aussuchen, auf die der Kopfbogen angewendet werden soll", "*.pdf" );
+            string theFileName = mDialogs.ShowFileOpenDialog("PDF-Datei aussuchen, auf die der Kopfbogen angewendet werden soll", "*.pdf");
 
-            if( !String.IsNullOrWhiteSpace( theFileName ) )
+            if (!String.IsNullOrWhiteSpace(theFileName))
             {
-                ProcessPdf( theFileName );
-            }            
+                ProcessPdf(theFileName);
+            }
         }
 
-        public async void ProcessPdf( string aFileName )
+        public async void ProcessPdf(string aFileName)
         {
-            if( IsBusy )
+            if (IsBusy)
             {
                 return;
             }
 
             IsBusy = true;
 
-            ProgressStatus = String.Format( @"Füge Kopfbogen hinzu für die Datei '{0}'...", Path.GetFileName( aFileName ) );
+            ProgressStatus = String.Format(@"Füge Kopfbogen hinzu für die Datei '{0}'...", Path.GetFileName(aFileName));
 
-            await Task.Delay( 250 ); // Just to allow user to see progress
+            await Task.Delay(250); // Just to allow user to see progress
 
-            var theResult = await Task.Run( () => mPdf.SetBackgroundFirstPage( aFileName ) );
-            if( theResult != null )
+            var theResult = await Task.Run(() => mPdf.SetBackgroundFirstPage(aFileName, SelectedCompany.BackgroundFilePath));
+            if (theResult != null)
             {
-                ShowErrorMessage( theResult );
+                ShowErrorMessage(theResult);
                 IsBusy = false;
                 return;
             }
 
-            Process.Start( aFileName );
+            Process.Start(aFileName);
             App.Current.Shutdown();
         }
 
-        public void ShowErrorMessage( string aMessage )
+        public void ShowErrorMessage(string aMessage)
         {
-            mDialogs.ShowMessageDialog( "Fehler", aMessage );
+            mDialogs.ShowMessageDialog("Fehler", aMessage);
         }
 
         public bool IsBusy
@@ -73,7 +83,7 @@ namespace KopfbogenTool.ViewModel
             }
             set
             {
-                if( Set( nameof( IsBusy ), ref mIsBusy, value ) )
+                if (Set(nameof(IsBusy), ref mIsBusy, value))
                 {
                     OpenFileCommand.RaiseCanExecuteChanged();
                 }
@@ -89,14 +99,55 @@ namespace KopfbogenTool.ViewModel
             }
             set
             {
-                Set( nameof( ProgressStatus ), ref mProgressStatus, value );
+                Set(nameof(ProgressStatus), ref mProgressStatus, value);
             }
         }
         private string mProgressStatus = null;
 
         public RelayCommand OpenFileCommand { get; private set; }
 
+        public RelayCommand<CompanyOption> SelectCompanyCommand { get; private set; }
+
+        public ObservableCollection<CompanyOption> CompanyOptions { get; private set; }
+
+        public CompanyOption SelectedCompany
+        {
+            get
+            {
+                return mSelectedCompany;
+            }
+            set
+            {
+                if (Set(nameof(SelectedCompany), ref mSelectedCompany, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentLogoPath));
+                }
+            }
+        }
+        private CompanyOption mSelectedCompany;
+
+        public string CurrentLogoPath
+        {
+            get
+            {
+                return SelectedCompany?.LogoPath ?? "Resources/logo.gif";
+            }
+        }
+
+        private void SelectCompany(CompanyOption aCompany)
+        {
+            SelectedCompany = aCompany;
+        }
+
         private readonly IDialogService mDialogs;
         private readonly IPdfService mPdf;
+    }
+
+    public class CompanyOption
+    {
+        public string Name { get; set; }
+        public string LogoPath { get; set; }
+
+        public string BackgroundFilePath { get; set; }
     }
 }
