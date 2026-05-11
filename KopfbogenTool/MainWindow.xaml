@@ -39,6 +39,9 @@
                 <MenuItem Header="RN Nitsche GmbH" 
                           Command="{Binding SelectCompanyCommand}" 
                           CommandParameter="{Binding CompanyOptions[1]}" />
+                <MenuItem Header="Innung" 
+                          Command="{Binding SelectCompanyCommand}" 
+                          CommandParameter="{Binding CompanyOptions[2]}" />
             </Controls:DropDownButton.Items>
         </Controls:DropDownButton>
         

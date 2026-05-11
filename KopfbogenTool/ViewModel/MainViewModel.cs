@@ -28,7 +28,8 @@ namespace KopfbogenTool.ViewModel
             CompanyOptions = new ObservableCollection<CompanyOption>
             {
                 new CompanyOption { Name = "Bürgel & Schulze", LogoPath = "Resources/logo.gif", BackgroundFilePath = @"Resources\letterhead.pdf" },
-                new CompanyOption { Name = "RN Nitsche GmbH", LogoPath = "Resources/logo-nitsche.png", BackgroundFilePath = @"Resources\letterhead-nitsche.pdf" }
+                new CompanyOption { Name = "RN Nitsche GmbH", LogoPath = "Resources/logo-nitsche.png", BackgroundFilePath = @"Resources\letterhead-nitsche.pdf" },
+                new CompanyOption { Name = "Innung", LogoPath = "Resources/logo-innung.png", BackgroundFilePath = @"Resources\letterhead-innung.pdf" }
             };
 
             SelectCompanyCommand = new RelayCommand<CompanyOption>(SelectCompany);
